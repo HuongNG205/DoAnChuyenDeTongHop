@@ -2,8 +2,136 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Phông chữ */
+    --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+    --font-logo: 'Alfa Slab One', Georgia, serif;
+
+    /* Màu chính và màu phụ */
+    --color-primary: #002D13;
+    --color-secondary: #29452B;
+    --color-accent: #F4D35E;
+    --color-gold: #EAB308;
+
+    /* Màu bổ sung (trạng thái, bảng) */
+    --color-success: #5DE29A;
+    --color-info: #073B6E;
+    --color-dark: #444444;
+    --color-muted: #E8E8E8;
+    --color-muted-dark: #DEDEDE;
+    --color-link: #0A84FF;
+}
+
+@layer base {
+    body {
+        @apply bg-white font-sans text-black;
+    }
+}
+
+@layer components {
+    /* Logo chữ */
+    .logo {
+        @apply font-logo text-3xl leading-none text-gold;
+    }
+
+    /* Nút */
+    .btn {
+        @apply inline-block cursor-pointer rounded-lg border border-black bg-white px-5 py-1.5 text-center hover:bg-accent;
+    }
+    .btn-accent {
+        @apply border-accent bg-accent px-3 py-1 text-primary hover:bg-gold hover:border-gold;
+    }
+    .btn-danger {
+        @apply border-red-700 text-red-700 hover:bg-red-700 hover:text-white;
+    }
+
+    /* Ô nhập */
+    .input {
+        @apply w-full rounded-lg border border-black bg-white px-3 py-2 outline-none focus:border-gold focus:ring-2 focus:ring-gold/40;
+    }
+
+    /* Thẻ */
+    .card {
+        @apply rounded-2xl bg-white shadow-md;
+    }
+
+    /* Nhãn trạng thái (tên class = giá trị cột tickets.status) */
+    .badge {
+        @apply inline-block whitespace-nowrap rounded-lg px-3 py-1 text-sm;
+    }
+    .badge-new { @apply bg-info text-white; }
+    .badge-in_progress { @apply bg-success text-black; }
+    .badge-resolved { @apply bg-secondary text-white; }
+    .badge-closed { @apply bg-dark text-white; }
+
+    /* Bảng dữ liệu */
+    .data-table {
+        @apply w-full text-center;
+    }
+    .data-table th {
+        @apply px-3 py-2 font-medium;
+    }
+    .data-table td {
+        @apply px-3 py-3;
+    }
+    .data-table tbody tr {
+        @apply odd:bg-muted even:bg-muted-dark;
+    }
+
+    /* Phân trang */
+    .page {
+        @apply inline-flex h-7 min-w-7 items-center justify-center rounded-md px-2 text-sm;
+    }
+    .page-active {
+        @apply bg-neutral-800 text-white;
+    }
+
+    /* Chọn sao đánh giá: radio đặt theo thứ tự 5 -> 1, hiển thị đảo chiều */
+    .rate {
+        @apply flex flex-row-reverse justify-end gap-1 text-2xl;
+    }
+    .rate input {
+        @apply sr-only;
+    }
+    .rate label {
+        @apply cursor-pointer text-gray-400;
+    }
+    .rate input:checked ~ label,
+    .rate label:hover,
+    .rate label:hover ~ label {
+        @apply text-gold;
+    }
+
+    /* Nội dung rich text đã lưu (HTML) */
+    .rich {
+        @apply leading-relaxed break-words;
+    }
+    .rich h1 { @apply my-2 text-2xl font-bold; }
+    .rich h2 { @apply my-2 text-xl font-bold; }
+    .rich h3 { @apply my-2 text-lg font-bold; }
+    .rich ul { @apply my-2 list-disc pl-6; }
+    .rich ol { @apply my-2 list-decimal pl-6; }
+    .rich a { @apply text-link underline; }
+    .rich blockquote { @apply my-2 border-l-4 border-gold pl-3 text-gray-600; }
+    .rich pre { @apply my-2 overflow-x-auto rounded-lg bg-neutral-800 p-3 text-sm text-white; }
+    .rich code { @apply rounded bg-muted px-1 text-sm; }
+}
+
+/* Rich Text Editor (Quill) cho khớp giao diện */
+.ql-toolbar.ql-snow {
+    border-color: #000;
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-family: inherit;
+}
+.ql-container.ql-snow {
+    border-color: #000;
+    border-radius: 0 0 0.5rem 0.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+}
+.ql-editor {
+    min-height: 18rem;
 }
