@@ -15,7 +15,7 @@ class DashboardController extends Controller
         return view('dashboard', [
             'total' => (clone $mine)->count(),
             'waiting' => $count('new'),
-            'replied' => $count('replied'),
+            'solved' => $count('solved'),
             'inProgress' => $count('in_progress'),
             'closed' => $count('closed'),
             'recent' => (clone $mine)->with('rating')->withCount('replies')->latest()->limit(5)->get(),

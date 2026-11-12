@@ -24,7 +24,7 @@
                 <tr>
                     <td>{{ $activities->firstItem() + $loop->index }}</td>
                     <td>{{ $a->created_at->format('d/m/Y') }}</td>
-                    <td>{{ $a->user->name ?? '-' }}</td>
+                    <td>{{ $a->notifyUser->name ?? '-' }}</td>
                     <td>{{ config('helpdesk.activities.' . $a->action, $a->action) }}</td>
                     <td>{{ $a->message }}</td>
                     <td>

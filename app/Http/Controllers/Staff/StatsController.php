@@ -41,7 +41,7 @@ class StatsController extends Controller
             'labels' => array_map(fn ($d) => sprintf('%02d/%02d', $d, $month), $days),
             'created' => $series(),
             'waiting' => $series('new'),
-            'replied' => $series('replied'),
+            'solved' => $series('solved'),
             'inProgress' => $series('in_progress'),
             'closed' => $series('closed'),
             // 5 phần tử: số ticket theo 1..5 sao
