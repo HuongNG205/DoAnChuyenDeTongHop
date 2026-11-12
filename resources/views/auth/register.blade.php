@@ -11,8 +11,6 @@
     </div>
 </form>
 
-@include('partial.google_button', ['label' => 'Đăng ký bằng Google'])
-
 <div class="auth-foot">
     <a href="{{ route('login') }}" class="auth-link">Đăng nhập</a>
 </div>

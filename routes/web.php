@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
@@ -46,21 +47,14 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
 // ---------- Đăng nhập / đăng ký ----------
-Route::middleware('guest')->group(function () use ($stub) {
+Route::middleware('guest')->group(function () {
     Route::view('/login', 'auth.login')->name('login');
     Route::view('/register', 'auth.register')->name('register');
-    Route::post('/login', $stub);
-    Route::post('/register', $stub);
-    Route::get('/auth/google', $stub)->name('auth.google.redirect');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::post('/logout', function () {
-    Auth::logout();
-    request()->session()->invalidate();
-    request()->session()->regenerateToken();
-
-    return redirect('/');
-})->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ---------- Đã đăng nhập ----------
 Route::middleware('auth')->group(function () use ($stub) {
