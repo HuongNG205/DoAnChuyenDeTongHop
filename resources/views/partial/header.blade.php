@@ -1,11 +1,11 @@
-<header class="flex flex-wrap items-center gap-4 bg-primary px-6 py-4">
+<header class="header">
     <a href="{{ url('/') }}" class="logo">Guidance</a>
 
-    <div class="min-w-48 max-w-3xl flex-1 md:ml-24">
+    <div class="header-search">
         @include('partial.search_box', ['action' => route('search'), 'variant' => 'header'])
     </div>
 
-    <div class="ml-auto flex items-center gap-5 text-white">
+    <div class="header-right">
         @guest
             <a href="{{ route('login') }}" class="btn btn-accent">Đăng nhập</a>
             <a href="{{ route('register') }}" class="btn btn-accent">Đăng ký</a>
@@ -15,34 +15,34 @@
             @php $items = $headerNotifications ?? []; @endphp
 
             {{-- Thông báo: lấy từ bảng activities (notify_user_id = người dùng hiện tại) --}}
-            <details class="relative">
-                <summary class="relative cursor-pointer list-none text-2xl">
+            <details class="dropdown">
+                <summary class="bell">
                     <i class="fa-regular fa-bell"></i>
                     @if (($unreadCount ?? 0) > 0)
-                        <span class="absolute -right-2 -top-2 rounded-full bg-gold px-1.5 text-xs font-bold text-primary">{{ $unreadCount }}</span>
+                        <span class="bell-count">{{ $unreadCount }}</span>
                     @endif
                 </summary>
-                <div class="absolute right-0 z-20 mt-3 w-80 rounded-xl bg-white p-2 text-sm text-black shadow-lg">
+                <div class="dropdown-menu dropdown-menu-wide">
                     @forelse ($items as $n)
                         <a href="{{ $n->ticket_id ? route('tickets.show', $n->ticket_id) : '#' }}"
-                           class="block rounded-lg px-3 py-2 hover:bg-muted {{ $n->is_read ? 'text-gray-500' : 'font-medium' }}">
+                           class="dropdown-item {{ $n->is_read ? 'read' : 'unread' }}">
                             {{ $n->message }}
-                            <span class="block text-xs text-gray-500">{{ $n->created_at->format('d/m/Y H:i') }}</span>
+                            <small>{{ $n->created_at->format('d/m/Y H:i') }}</small>
                         </a>
                     @empty
-                        <p class="px-3 py-2 text-gray-500">Chưa có thông báo.</p>
+                        <p class="dropdown-empty">Chưa có thông báo.</p>
                     @endforelse
                 </div>
             </details>
 
             {{-- Chỉ hiển thị tên người dùng, không avatar --}}
-            <details class="relative">
-                <summary class="cursor-pointer list-none text-lg">{{ auth()->user()->name }}</summary>
-                <div class="absolute right-0 z-20 mt-3 w-44 rounded-xl bg-white p-2 text-black shadow-lg">
-                    <a href="{{ route('account.edit') }}" class="block rounded-lg px-3 py-2 hover:bg-muted">Tài khoản</a>
+            <details class="dropdown">
+                <summary class="username">{{ auth()->user()->name }}</summary>
+                <div class="dropdown-menu">
+                    <a href="{{ route('account.edit') }}" class="dropdown-item">Tài khoản</a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="block w-full rounded-lg px-3 py-2 text-left hover:bg-muted">Đăng xuất</button>
+                        <button class="dropdown-item">Đăng xuất</button>
                     </form>
                 </div>
             </details>

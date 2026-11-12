@@ -17,8 +17,8 @@
     };
 @endphp
 
-<nav class="flex shrink-0 flex-row flex-wrap gap-x-8 gap-y-2 bg-primary px-6 py-4 text-xl text-white md:w-64 md:flex-col md:gap-y-5 md:px-5 md:pt-5">
+<nav class="sidebar">
     @foreach ($menu as [$label, $route, $pattern])
-        <a href="{{ route($route) }}" class="{{ request()->routeIs($pattern) ? 'font-bold text-accent' : 'hover:text-accent' }}">{{ $label }}</a>
+        <a href="{{ route($route) }}" class="{{ request()->routeIs($pattern) ? 'active' : '' }}">{{ $label }}</a>
     @endforeach
 </nav>

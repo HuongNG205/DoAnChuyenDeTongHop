@@ -2,17 +2,17 @@
 @section('title', $user->name)
 {{-- Biến: $user, $tickets (paginator ticket của user, đã load rating) --}}
 @section('content')
-<div class="mb-5 flex items-center gap-3">
+<div class="back-head back-head-left">
     <a href="{{ route('admin.users.index') }}" aria-label="Quay lại"><i class="fa-solid fa-arrow-left"></i></a>
-    <h1 class="text-2xl">{{ $user->name }}</h1>
+    <h1 class="title-sm">{{ $user->name }}</h1>
 </div>
 
-<div class="max-w-4xl">
+<div class="narrow">
     @include('partial.form.user', ['user' => $user, 'action' => route('admin.users.update', $user), 'admin' => true])
 </div>
 
-<hr class="my-6 border-black">
+<hr class="divider">
 
-<h2 class="mb-3 text-2xl">Tổng số Ticket: {{ $tickets->total() }}</h2>
+<h2 class="title-sm mb-5">Tổng số Ticket: {{ $tickets->total() }}</h2>
 @include('partial.ticket_table', ['tickets' => $tickets, 'mode' => 'customer'])
 @endsection

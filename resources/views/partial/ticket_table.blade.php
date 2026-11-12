@@ -4,7 +4,7 @@
   Cột "Hoạt động": Sửa (chuyển sang trang Edit) và Xóa.
 --}}
 @php $staff = ($mode ?? 'customer') === 'staff'; @endphp
-<div class="overflow-x-auto">
+<div class="table-wrap">
     <table class="data-table">
         <thead>
             <tr>
@@ -30,7 +30,7 @@
             @forelse ($tickets as $t)
                 <tr>
                     <td>{{ $t->track_id }}</td>
-                    <td><a href="{{ route('tickets.show', $t) }}" class="hover:underline">{{ $t->title }}</a></td>
+                    <td><a href="{{ route('tickets.show', $t) }}">{{ $t->title }}</a></td>
                     @if ($staff)
                         <td>{{ $t->customer->name }}</td>
                         <td>{{ $t->owner->name ?? '-' }}</td>
@@ -44,24 +44,24 @@
                         <td>{{ $t->updated_at->format('d/m/Y') }}</td>
                     @endif
                     <td>@include('partial.stars', ['stars' => $t->rating->stars ?? 0])</td>
-                    <td class="whitespace-nowrap">
+                    <td class="nowrap">
                         @can('update', $t)
-                            <a href="{{ route('tickets.edit', $t) }}" class="underline">Sửa</a>
+                            <a href="{{ route('tickets.edit', $t) }}" class="act-edit">Sửa</a>
                         @endcan
                         @can('delete', $t)
-                            <form method="POST" action="{{ route('tickets.destroy', $t) }}" class="ml-2 inline"
+                            <form method="POST" action="{{ route('tickets.destroy', $t) }}" class="inline-form"
                                   onsubmit="return confirm('Xóa ticket này?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="text-red-700 underline">Xóa</button>
+                                <button class="act-del">Xóa</button>
                             </form>
                         @endcan
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="10" class="py-6 text-gray-500">Không có ticket nào.</td></tr>
+                <tr><td colspan="10" class="empty">Không có ticket nào.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
-<div class="mt-2">{{ $tickets->withQueryString()->links('partial.pagination') }}</div>
+<div class="pager">{{ $tickets->withQueryString()->links('partial.pagination') }}</div>
