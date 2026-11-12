@@ -30,7 +30,7 @@
             @forelse ($tickets as $t)
                 <tr>
                     <td>{{ $t->track_id }}</td>
-                    <td><a href="{{ route('tickets.show', $t) }}" class="hover:underline">{{ $t->subject }}</a></td>
+                    <td><a href="{{ route('tickets.show', $t) }}" class="hover:underline">{{ $t->title }}</a></td>
                     @if ($staff)
                         <td>{{ $t->customer->name }}</td>
                         <td>{{ $t->owner->name ?? '-' }}</td>
