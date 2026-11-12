@@ -11,9 +11,9 @@
     @if ($editing) @method('PUT') @endif
 
     <div class="flex flex-wrap items-center gap-4">
-        <label for="subject" class="text-lg">Tiêu đề:</label>
-        <input id="subject" name="subject" class="input max-w-md flex-1" required
-               value="{{ old('subject', $ticket->subject ?? '') }}">
+        <label for="title" class="text-lg">Tiêu đề:</label>
+        <input id="title" name="title" class="input max-w-md flex-1" required
+               value="{{ old('title', $ticket->title ?? '') }}">
 
         <label for="priority" class="text-lg">Mức độ ưu tiên:</label>
         <select id="priority" name="priority" class="input w-auto" required>

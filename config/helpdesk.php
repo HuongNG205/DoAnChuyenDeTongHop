@@ -3,13 +3,17 @@
 return [
     'support_email' => env('SUPPORT_EMAIL', '*@gmail.com'),
 
-    'roles' => ['customer', 'staff', 'admin'],
+    'roles' => [
+        'customer' => 'Khách hàng',
+        'staff' => 'Nhân viên',
+        'admin' => 'Quản trị viên'
+    ],
 
     // Giá trị cột tickets.status
     'status' => [
         'new' => 'Chờ giải quyết',
         'in_progress' => 'Đang giải quyết',
-        'resolved' => 'Đã giải quyết',
+        'solved' => 'Đã giải quyết',
         'closed' => 'Đóng',
     ],
 

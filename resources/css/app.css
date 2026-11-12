@@ -64,7 +64,7 @@
     }
     .badge-new { @apply bg-info text-white; }
     .badge-in_progress { @apply bg-success text-black; }
-    .badge-resolved { @apply bg-secondary text-white; }
+    .badge-solved { @apply bg-secondary text-white; }
     .badge-closed { @apply bg-dark text-white; }
 
     /* Bảng dữ liệu */
