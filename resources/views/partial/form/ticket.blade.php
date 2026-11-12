@@ -6,17 +6,17 @@
     $editing = !empty($ticket);
     $isStaff = in_array(auth()->user()->role, ['staff', 'admin']);
 @endphp
-<form method="POST" action="{{ $editing ? route('tickets.update', $ticket) : route('tickets.store') }}" class="space-y-5">
+<form method="POST" action="{{ $editing ? route('tickets.update', $ticket) : route('tickets.store') }}" class="form-stack">
     @csrf
     @if ($editing) @method('PUT') @endif
 
-    <div class="flex flex-wrap items-center gap-4">
-        <label for="subject" class="text-lg">Tiêu đề:</label>
-        <input id="subject" name="subject" class="input max-w-md flex-1" required
+    <div class="form-row">
+        <label for="subject" class="label-md">Tiêu đề:</label>
+        <input id="subject" name="subject" class="input input-title" required
                value="{{ old('subject', $ticket->subject ?? '') }}">
 
-        <label for="priority" class="text-lg">Mức độ ưu tiên:</label>
-        <select id="priority" name="priority" class="input w-auto" required>
+        <label for="priority" class="label-md">Mức độ ưu tiên:</label>
+        <select id="priority" name="priority" class="input input-auto" required>
             <option value="" disabled @selected(!old('priority', $ticket->priority ?? null))>Chọn</option>
             @foreach (config('helpdesk.priority') as $key => $label)
                 <option value="{{ $key }}" @selected(old('priority', $ticket->priority ?? null) === $key)>{{ $label }}</option>
@@ -24,8 +24,8 @@
         </select>
 
         @if ($editing && $isStaff)
-            <label for="status" class="text-lg">Trạng thái:</label>
-            <select id="status" name="status" class="input w-auto">
+            <label for="status" class="label-md">Trạng thái:</label>
+            <select id="status" name="status" class="input input-auto">
                 @foreach (config('helpdesk.status') as $key => $label)
                     <option value="{{ $key }}" @selected(old('status', $ticket->status) === $key)>{{ $label }}</option>
                 @endforeach
@@ -33,11 +33,11 @@
         @endif
     </div>
 
-    <div class="flex flex-col gap-2 lg:flex-row">
-        <label class="text-lg lg:w-24">Nội dung:</label>
-        <div class="max-w-3xl flex-1">
+    <div class="editor-row">
+        <label>Nội dung:</label>
+        <div class="editor-col">
             @include('partial.rich_editor', ['name' => 'message', 'value' => $ticket->message ?? ''])
-            <div class="mt-4 text-center">
+            <div class="center mt-4">
                 <button class="btn">{{ $editing ? 'Cập nhật' : 'Gửi Ticket' }}</button>
             </div>
         </div>

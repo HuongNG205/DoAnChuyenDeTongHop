@@ -4,11 +4,11 @@
 --}}
 @php $exists = !empty($rating); @endphp
 <form method="POST" action="{{ $exists ? route('tickets.rating.update', $ticket) : route('tickets.rating.store', $ticket) }}"
-      class="flex flex-wrap items-center gap-3">
+      class="rating-form">
     @csrf
     @if ($exists) @method('PUT') @endif
 
-    <span class="text-lg">Đánh giá:</span>
+    <span class="label-md">Đánh giá:</span>
     <div class="rate">
         @for ($i = 5; $i >= 1; $i--)
             <input type="radio" id="star{{ $i }}" name="stars" value="{{ $i }}" @checked(old('stars', $rating->stars ?? 0) == $i) required>

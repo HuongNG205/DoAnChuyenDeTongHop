@@ -6,10 +6,10 @@
 @endphp
 
 @section('content')
-<div class="flex flex-wrap items-center gap-3">
+<div class="show-head">
     <a href="{{ url()->previous() }}" aria-label="Quay lại"><i class="fa-solid fa-arrow-left"></i></a>
-    <h1 class="text-3xl">{{ $ticket->subject }}</h1>
-    <div class="ml-auto flex gap-3">
+    <h1 class="page-title">{{ $ticket->subject }}</h1>
+    <div class="show-actions">
         @can('update', $ticket)
             <a href="{{ route('tickets.edit', $ticket) }}" class="btn">Sửa</a>
         @endcan
@@ -24,31 +24,31 @@
 </div>
 
 {{-- Nội dung ticket (HTML đã được lọc ở server) --}}
-<div class="rich mt-5 border-b border-gray-500 pb-4">{!! $ticket->message !!}</div>
+<div class="message message-first rich">{!! $ticket->message !!}</div>
 
 @foreach ($ticket->replies as $reply)
-    <div class="border-b border-gray-500 py-4">
+    <div class="message">
         <div>Reply by <b>{{ $reply->user->name }}</b> - {{ $reply->created_at->format('d/m/Y') }}</div>
         <div class="rich">{!! $reply->message !!}</div>
     </div>
 @endforeach
 
 @if ($ticket->status !== 'closed')
-    <div class="mt-6">
+    <div class="reply-box">
         @include('partial.form.reply', ['ticket' => $ticket])
     </div>
 @endif
 
 @if ($isOwner)
-    <div class="mt-6 border-t border-gray-500 pt-4">
+    <div class="rating-box">
         @include('partial.form.rating', ['ticket' => $ticket, 'rating' => $ticket->rating])
     </div>
 @endif
 @endsection
 
 @section('aside')
-<h2 class="mb-4 font-bold">Thông tin Ticket</h2>
-<ul class="space-y-2">
+<h2 class="info-title">Thông tin Ticket</h2>
+<ul class="info-list">
     <li>Mã Ticket: {{ $ticket->track_id }}</li>
     <li>Trạng thái: {{ config('helpdesk.status.' . $ticket->status) }}</li>
     <li>Ngày tạo: {{ $ticket->created_at->format('d/m/Y') }}</li>

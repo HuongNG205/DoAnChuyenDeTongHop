@@ -7,10 +7,10 @@
     <title>@yield('title', 'Guidance')</title>
     @include('partial.assets')
 </head>
-<body class="grid min-h-screen place-items-center bg-primary p-4">
-    <div class="w-full max-w-xl rounded-3xl bg-white p-9">
-        <a href="{{ url('/') }}" class="logo block text-center">Guidance</a>
-        <div class="mt-4">@include('partial.alert')</div>
+<body class="guest-body">
+    <div class="auth-card">
+        <a href="{{ url('/') }}" class="logo">Guidance</a>
+        @include('partial.alert')
         @yield('content')
     </div>
 </body>

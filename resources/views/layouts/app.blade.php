@@ -8,21 +8,21 @@
     @include('partial.assets')
     @stack('styles')
 </head>
-<body class="flex min-h-screen flex-col">
+<body>
     @include('partial.header')
 
-    <div class="flex flex-1 flex-col md:flex-row">
+    <div class="page">
         @auth
             @include('partial.sidebar')
         @endauth
 
-        <main class="min-w-0 flex-1 p-4">
+        <main class="main">
             @include('partial.alert')
             @yield('content')
         </main>
 
         @hasSection('aside')
-            <aside class="shrink-0 p-4 lg:w-80">
+            <aside class="aside">
                 @yield('aside')
             </aside>
         @endif

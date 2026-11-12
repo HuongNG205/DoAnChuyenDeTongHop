@@ -2,12 +2,12 @@
 @section('title', 'Danh sách User')
 {{-- Biến: $users (paginator) --}}
 @section('content')
-<h1 class="text-3xl">Danh sách User</h1>
-<div class="my-4">
+<h1 class="page-title">Danh sách User</h1>
+<div class="toolbar">
     @include('partial.search_box', ['action' => route('admin.users.index')])
 </div>
 
-<div class="overflow-x-auto">
+<div class="table-wrap">
     <table class="data-table">
         <thead>
             <tr>
@@ -24,28 +24,28 @@
             @forelse ($users as $u)
                 <tr>
                     <td>{{ $u->id }}</td>
-                    <td><a href="{{ route('admin.users.edit', $u) }}" class="hover:underline">{{ $u->name }}</a></td>
+                    <td><a href="{{ route('admin.users.edit', $u) }}">{{ $u->name }}</a></td>
                     <td>{{ $u->email }}</td>
                     <td>{{ ucfirst($u->role) }}</td>
                     <td>{{ $u->is_blocked ? 'Đã chặn' : 'Hoạt động' }}</td>
                     <td>{{ $u->created_at->format('d/m/Y') }}</td>
-                    <td class="whitespace-nowrap">
-                        <a href="{{ route('admin.users.edit', $u) }}" class="underline">Sửa</a>
+                    <td class="nowrap">
+                        <a href="{{ route('admin.users.edit', $u) }}" class="act-edit">Sửa</a>
                         @if ($u->id !== auth()->id())
-                            <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="ml-2 inline"
+                            <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline-form"
                                   onsubmit="return confirm('Xóa tài khoản này?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="text-red-700 underline">Xóa</button>
+                                <button class="act-del">Xóa</button>
                             </form>
                         @endif
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7" class="py-6 text-gray-500">Không có user nào.</td></tr>
+                <tr><td colspan="7" class="empty">Không có user nào.</td></tr>
             @endforelse
         </tbody>
     </table>
 </div>
-<div class="mt-2">{{ $users->withQueryString()->links('partial.pagination') }}</div>
+<div class="pager">{{ $users->withQueryString()->links('partial.pagination') }}</div>
 @endsection

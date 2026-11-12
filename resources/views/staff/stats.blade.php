@@ -8,39 +8,39 @@
         $totalUsers, $totalTickets, $avgRating
 --}}
 @section('content')
-<div class="card p-6">
-    <div class="flex items-center justify-between">
-        <h1 class="text-xl font-bold">Thống kê Ticket</h1>
+<div class="panel">
+    <div class="panel-head">
+        <h1>Thống kê Ticket</h1>
         <form method="GET" action="{{ route('staff.stats') }}">
-            <select name="month" onchange="this.form.submit()" class="rounded border border-black px-2 py-1 text-sm">
+            <select name="month" onchange="this.form.submit()" class="month-select">
                 @for ($m = 1; $m <= 12; $m++)
                     <option value="{{ $m }}" @selected((int) request('month', $month) === $m)>Tháng {{ $m }}</option>
                 @endfor
             </select>
         </form>
     </div>
-    <div class="mt-4 h-72"><canvas id="chart-line"></canvas></div>
+    <div class="chart-lg"><canvas id="chart-line"></canvas></div>
 </div>
 
-<div class="mt-4 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-start">
-    <div class="rounded-2xl bg-neutral-50 p-4">
-        <h2 class="mb-2 text-sm font-bold">Ticket theo rating</h2>
-        <div class="h-52"><canvas id="chart-rating"></canvas></div>
+<div class="stats-row">
+    <div class="stats-box">
+        <h2>Ticket theo rating</h2>
+        <div class="chart-sm"><canvas id="chart-rating"></canvas></div>
     </div>
 
-    <div class="space-y-1 text-xl">
+    <div class="stats-numbers">
         <p>Tổng user: {{ $totalUsers }}</p>
         <p>Tổng Ticket: {{ $totalTickets }}</p>
         <p>Trung bình đánh giá: {{ number_format($avgRating, 1) }}</p>
     </div>
 
-    <div class="rounded-2xl bg-neutral-50 p-4">
-        <h2 class="mb-2 text-sm font-bold">Ticket theo mức độ ưu tiên</h2>
-        <div class="h-52"><canvas id="chart-priority"></canvas></div>
+    <div class="stats-box">
+        <h2>Ticket theo mức độ ưu tiên</h2>
+        <div class="chart-sm"><canvas id="chart-priority"></canvas></div>
     </div>
 </div>
 
-<div class="mt-6 text-center">
+<div class="export">
     <a href="{{ route('staff.stats.export', ['month' => request('month', $month)]) }}" class="btn">Xuất báo cáo</a>
 </div>
 @endsection

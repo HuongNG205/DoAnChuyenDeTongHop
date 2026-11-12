@@ -1,10 +1,10 @@
 {{-- Trả lời ticket. Tham số: $ticket --}}
-<form method="POST" action="{{ route('tickets.reply', $ticket) }}" class="flex flex-col gap-2 lg:flex-row">
+<form method="POST" action="{{ route('tickets.reply', $ticket) }}" class="editor-row">
     @csrf
-    <label class="text-lg lg:w-20">Trả lời:</label>
-    <div class="max-w-3xl flex-1">
+    <label>Trả lời:</label>
+    <div class="editor-col">
         @include('partial.rich_editor', ['name' => 'message', 'value' => ''])
-        <div class="mt-4 text-center">
+        <div class="center mt-4">
             <button class="btn">Gửi trả lời</button>
         </div>
     </div>
