@@ -2,7 +2,7 @@
 @section('title', 'Thống kê')
 {{--
   Biến: $month (1-12)
-        $labels (mảng ngày), $created, $waiting, $inProgress, $resolved (mảng số liệu theo ngày)
+        $labels (mảng ngày), $created, $waiting, $inProgress, $solved (mảng số liệu theo ngày)
         $ratingCounts (5 phần tử: số ticket theo 1..5 sao)
         $priorityCounts (mảng: low, medium, high)
         $totalUsers, $totalTickets, $avgRating
@@ -63,7 +63,7 @@
                 area('Được tạo', @json($created), '#FA8F7A'),
                 area('Chờ giải quyết', @json($waiting), '#D8B4FE'),
                 area('Đang giải quyết', @json($inProgress), '#FFF176'),
-                area('Đã giải quyết', @json($resolved), '#4DAA94')
+                area('Đã giải quyết', @json($solved), '#4DAA94')
             ]
         },
         options: Object.assign({}, common, { plugins: { legend: { position: 'bottom' } } })

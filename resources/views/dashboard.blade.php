@@ -1,13 +1,13 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
-{{-- Biến: $total, $resolved, $inProgress, $waiting, $recent (ticket gần đây) --}}
+{{-- Biến: $total, $solved, $inProgress, $waiting, $recent (ticket gần đây) --}}
 @section('content')
 <h1 class="page-title center">Dashboard</h1>
 
 <div class="stat-grid">
     @foreach ([
         ['Tổng số Ticket', $total],
-        ['Đã giải quyết', $resolved],
+        ['Đã giải quyết', $solved],
         ['Đang giải quyết', $inProgress],
         ['Chờ giải quyết', $waiting],
     ] as [$label, $value])

@@ -11,9 +11,9 @@
     @if ($editing) @method('PUT') @endif
 
     <div class="form-row">
-        <label for="subject" class="label-md">Tiêu đề:</label>
-        <input id="subject" name="subject" class="input input-title" required
-               value="{{ old('subject', $ticket->subject ?? '') }}">
+        <label for="title" class="label-md">Tiêu đề:</label>
+        <input id="title" name="title" class="input input-title" required
+               value="{{ old('title', $ticket->title ?? '') }}">
 
         <label for="priority" class="label-md">Mức độ ưu tiên:</label>
         <select id="priority" name="priority" class="input input-auto" required>

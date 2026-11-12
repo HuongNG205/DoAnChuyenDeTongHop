@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', $ticket->subject)
+@section('title', $ticket->title)
 {{-- Biến: $ticket (đã load customer, replies.user, rating) --}}
 @php
     $isOwner = auth()->id() === $ticket->customer_id;
@@ -8,7 +8,7 @@
 @section('content')
 <div class="show-head">
     <a href="{{ url()->previous() }}" aria-label="Quay lại"><i class="fa-solid fa-arrow-left"></i></a>
-    <h1 class="page-title">{{ $ticket->subject }}</h1>
+    <h1 class="page-title">{{ $ticket->title }}</h1>
     <div class="show-actions">
         @can('update', $ticket)
             <a href="{{ route('tickets.edit', $ticket) }}" class="btn">Sửa</a>
