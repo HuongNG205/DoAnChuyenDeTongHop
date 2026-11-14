@@ -25,11 +25,20 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can create models.
+     * Chỉ khách hàng tạo ticket (staff/admin xử lý ticket, không tạo).
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === 'customer';
+    }
+
+    /**
+     * Trả lời ticket: chủ ticket hoặc staff/admin, và ticket chưa đóng.
+     */
+    public function reply(User $user, Ticket $ticket): bool
+    {
+        return $ticket->status !== 'closed'
+            && ($user->isStaff() || $user->id === $ticket->customer_id);
     }
 
     /**

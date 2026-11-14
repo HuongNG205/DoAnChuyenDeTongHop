@@ -44,6 +44,7 @@ class StatsController extends Controller
             'solved' => $series('solved'),
             'inProgress' => $series('in_progress'),
             'closed' => $series('closed'),
+            'resolved' => array_map(fn ($s, $c) => $s + $c, $series('solved'), $series('closed')),
             // 5 phần tử: số ticket theo 1..5 sao
             'ratingCounts' => array_map(fn ($s) => (int) ($ratingCounts[$s] ?? 0), range(1, 5)),
             // Thứ tự: low, medium, high

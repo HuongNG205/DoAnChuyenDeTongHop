@@ -5,9 +5,19 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Requests\StoreTicketRequest;
+use App\Services\TicketService;
+use Illuminate\Http\RedirectResponse;
 
 class TicketController extends Controller
 {
+    protected TicketService $ticketService;
+
+    public function __construct(TicketService $ticketService)
+    {
+        $this->ticketService = $ticketService;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -33,9 +43,14 @@ class TicketController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTicketRequest $request): RedirectResponse
     {
-        
+        // Quyền (customer) và dữ liệu (đã lọc HTML) đã được StoreTicketRequest xử lý.
+        $ticket = $this->ticketService->create($request->user(), $request->validated());
+
+        return redirect()
+            ->route('tickets.show', $ticket)
+            ->with('status', "Đã gửi ticket {$ticket->track_id}. Email xác nhận sẽ được gửi tới {$request->user()->email}.");
     }
 
     /**

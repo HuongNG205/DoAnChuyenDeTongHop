@@ -7,7 +7,7 @@
 <div class="stat-grid">
     @foreach ([
         ['Tổng số Ticket', $total],
-        ['Đã giải quyết', $solved],
+        ['Đã giải quyết', $solved + $closed],
         ['Đang giải quyết', $inProgress],
         ['Chờ giải quyết', $waiting],
     ] as [$label, $value])
