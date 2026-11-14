@@ -85,7 +85,7 @@ Route::middleware('auth')->group(function () use ($stub) {
     Route::middleware(RoleMiddleware::class . ':staff,admin')->prefix('staff')->group(function () use ($stub) {
         Route::get('/tickets', [StaffTicketController::class, 'index'])->name('staff.tickets.index');
         Route::get('/stats', [StatsController::class, 'index'])->name('staff.stats');
-        Route::get('/stats/export', $stub)->name('staff.stats.export');
+        Route::get('/stats/export', [StatsController::class, 'export'])->name('staff.stats.export');
     });
 
     // Chỉ admin
