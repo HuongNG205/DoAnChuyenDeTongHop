@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Support\HtmlSanitizer;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +12,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Khởi tạo HTMLPurifier khá nặng => dùng chung một instance cho cả request.
+        $this->app->singleton(HtmlSanitizer::class);
     }
 
     /**

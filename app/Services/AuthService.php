@@ -1,34 +1,32 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Services;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\AuthRequest;
 use App\Models\Activity;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class AuthService
 {
-    /** Số lần đăng nhập sai tối đa trước khi bị khóa tạm thời (theo email + IP). */
     private const MAX_ATTEMPTS = 5;
     private const DECAY_SECONDS = 60;
 
     // ---------- Đăng nhập ----------
 
-    public function login(AuthRequest $request): RedirectResponse
+    public function login(array $data, Request $request): User
     {
-        $data = $request->validated();
-        $email = $data['email']; // đã được AuthRequest chuẩn hóa chữ thường
+        $email = $data['email'];
 
         $throttleKey = $email . '|' . $request->ip();
 
-        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_ATTEMPTS)) {
+        if (RateLimiter::tooManyAttempts(
+            $throttleKey,
+            self::MAX_ATTEMPTS
+        )) {
             $seconds = RateLimiter::availableIn($throttleKey);
 
             throw ValidationException::withMessages([
@@ -36,7 +34,7 @@ class AuthController extends Controller
             ]);
         }
 
-        // User dùng SoftDeletes nên tài khoản đã xóa sẽ không tìm thấy ở đây.
+        // Tìm tài khoản chưa bị Soft Delete.
         $user = User::where('email', $email)->first();
 
         if (! $user || ! Hash::check($data['password'], $user->password)) {
@@ -51,7 +49,9 @@ class AuthController extends Controller
 
         // Mật khẩu đúng nhưng tài khoản bị khóa: báo lý do, không đăng nhập.
         if ($user->is_blocked) {
-            $reason = $user->blocked_reason ? ' Lý do: ' . $user->blocked_reason : '';
+            $reason = $user->blocked_reason
+                ? ' Lý do: ' . $user->blocked_reason
+                : '';
 
             throw ValidationException::withMessages([
                 'email' => 'Tài khoản của bạn đã bị khóa.' . $reason,
@@ -63,20 +63,18 @@ class AuthController extends Controller
 
         $this->logActivity('login', $user);
 
-        return redirect()->intended(route('home'));
+        return $user;
     }
 
     // ---------- Đăng ký ----------
 
-    public function register(AuthRequest $request): RedirectResponse
+    public function register(array $data, Request $request): User
     {
-        $data = $request->validated();
-
         // Không nhận "role" từ form: tài khoản đăng ký luôn là customer (mặc định của cột role).
         $user = User::create([
             'name' => trim($data['name']),
             'email' => $data['email'],
-            'password' => $data['password'], // cast 'hashed' trong User tự mã hóa
+            'password' => $data['password'],
         ]);
 
         Auth::login($user);
@@ -84,12 +82,12 @@ class AuthController extends Controller
 
         $this->logActivity('register', $user);
 
-        return redirect()->route('home')->with('status', 'Đăng ký thành công. Chào mừng bạn!');
+        return $user;
     }
 
     // ---------- Đăng xuất ----------
 
-    public function logout(Request $request): RedirectResponse
+    public function logout(Request $request): void
     {
         if ($user = $request->user()) {
             $this->logActivity('logout', $user);
@@ -98,15 +96,10 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect()->route('home')->with('status', 'Bạn đã đăng xuất.');
     }
 
-    /**
-     * Ghi lịch sử hoạt động (message = null nên không hiện ở chuông thông báo).
-     * Bảng activities chưa có cột user_id nên dùng notify_user_id để biết của ai,
-     * giống cách ActivitySeeder đang làm.
-     */
+    // ---------- Ghi lịch sử hoạt động ----------
+
     private function logActivity(string $action, User $user): void
     {
         Activity::create([

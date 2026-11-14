@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Staff\StatsController;
 use App\Http\Controllers\Staff\TicketController as StaffTicketController;
@@ -66,10 +67,11 @@ Route::middleware('auth')->group(function () use ($stub) {
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
     Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::get('/tickets/{ticket}/edit', [TicketController::class, 'edit'])->name('tickets.edit');
-    Route::post('/tickets', $stub)->name('tickets.store');
+    // Mỗi lần tạo ticket / reply có thể gửi email => giới hạn 10 lần/phút/người dùng để chống spam.
+    Route::post('/tickets', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('tickets.store');
     Route::put('/tickets/{ticket}', $stub)->name('tickets.update');
     Route::delete('/tickets/{ticket}', $stub)->name('tickets.destroy');
-    Route::post('/tickets/{ticket}/reply', $stub)->name('tickets.reply');
+    Route::post('/tickets/{ticket}/reply', [ReplyController::class, 'store'])->middleware('throttle:10,1')->name('tickets.reply');
     Route::post('/tickets/{ticket}/rating', $stub)->name('tickets.rating.store');
     Route::put('/tickets/{ticket}/rating', $stub)->name('tickets.rating.update');
     Route::delete('/tickets/{ticket}/rating', $stub)->name('tickets.rating.destroy');
