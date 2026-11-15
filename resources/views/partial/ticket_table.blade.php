@@ -16,8 +16,6 @@
                 @include('partial.sort_th', ['key' => 'title', 'label' => 'Tiêu đề'])
                 @if ($staff)
                     @include('partial.sort_th', ['key' => 'customer', 'label' => 'Người tạo'])
-                    {{-- "Phụ trách" chưa có dữ liệu (ticket chưa có người phụ trách) nên chưa thể sắp xếp --}}
-                    <th>Phụ trách</th>
                 @else
                     @include('partial.sort_th', ['key' => 'status', 'label' => 'Trạng thái'])
                 @endif
@@ -38,7 +36,6 @@
                     <td><a href="{{ route('tickets.show', $t) }}">{{ $t->title }}</a></td>
                     @if ($staff)
                         <td>{{ $t->customer->name }}</td>
-                        <td>{{ $t->owner->name ?? '-' }}</td>
                     @else
                         <td>@include('partial.status_badge', ['status' => $t->status])</td>
                     @endif
