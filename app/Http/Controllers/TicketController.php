@@ -48,9 +48,7 @@ class TicketController extends Controller
         // Quyền (customer) và dữ liệu (đã lọc HTML) đã được StoreTicketRequest xử lý.
         $ticket = $this->ticketService->create($request->user(), $request->validated());
 
-        return redirect()
-            ->route('tickets.show', $ticket)
-            ->with('status', "Đã gửi ticket {$ticket->track_id}. Email xác nhận sẽ được gửi tới {$request->user()->email}.");
+        return redirect()->route('tickets.show', $ticket);
     }
 
     /**

@@ -57,13 +57,39 @@ class Ticket extends Model
         return $this->hasMany(Activity::class);
     }
 
-    /** Tìm theo mã, tiêu đề, nội dung. */
+    /** Chỉ các Ticket đã đóng (hiển thị công khai ở trang chủ, "Gần đây", tìm kiếm trên header). */
+    public function scopeClosed(Builder $query): Builder
+    {
+        return $query->where('status', 'closed');
+    }
+
+    /** Thanh tìm kiếm trên header: chỉ tìm theo tiêu đề. */
+    public function scopeSearchTitle(Builder $query, ?string $term): Builder
+    {
+        $term = trim((string) $term);
+
+        return $query->when($term !== '', fn ($q) => $q->where('title', 'like', "%{$term}%"));
+    }
+
+    /**
+     * Thanh tìm kiếm trong các trang danh sách: tìm theo mã ticket, tiêu đề và trạng thái.
+     * Trạng thái có thể gõ theo mã (in_progress) hoặc theo nhãn tiếng Việt ("Đang giải quyết").
+     */
     public function scopeSearch(Builder $query, ?string $term): Builder
     {
-        return $query->when($term, fn ($q) => $q->where(function ($q) use ($term) {
-            $q->where('track_id', 'like', "%{$term}%")
-              ->orWhere('title', 'like', "%{$term}%")
-              ->orWhere('message', 'like', "%{$term}%");
-        }));
+        $term = trim((string) $term);
+
+        if ($term === '') {
+            return $query;
+        }
+
+        $statuses = collect(config('helpdesk.status'))
+            ->filter(fn ($label, $key) => mb_stripos($label, $term) !== false || mb_stripos($key, $term) !== false)
+            ->keys();
+
+        return $query->where(fn ($q) => $q
+            ->where('track_id', 'like', "%{$term}%")
+            ->orWhere('title', 'like', "%{$term}%")
+            ->orWhereIn('status', $statuses));
     }
 }

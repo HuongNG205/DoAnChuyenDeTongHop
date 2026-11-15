@@ -27,7 +27,7 @@
                     <td><a href="{{ route('admin.users.edit', $u) }}">{{ $u->name }}</a></td>
                     <td>{{ $u->email }}</td>
                     <td>{{ ucfirst($u->role) }}</td>
-                    <td>{{ $u->is_blocked ? 'Đã chặn' : 'Hoạt động' }}</td>
+                    <td>{{ config('helpdesk.user_status.' . (int) $u->is_blocked) }}</td>
                     <td>{{ $u->created_at->format('d/m/Y') }}</td>
                     <td class="nowrap">
                         <a href="{{ route('admin.users.edit', $u) }}" class="act-edit">Sửa</a>

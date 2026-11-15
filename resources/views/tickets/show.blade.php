@@ -1,9 +1,6 @@
 @extends('layouts.app')
 @section('title', $ticket->title)
 {{-- Biến: $ticket (đã load customer, replies.user, rating) --}}
-@php
-    $isOwner = auth()->id() === $ticket->customer_id;
-@endphp
 
 @section('content')
 <div class="show-head">
@@ -33,17 +30,19 @@
     </div>
 @endforeach
 
-@if ($ticket->status !== 'closed')
+{{-- Chỉ chủ ticket / staff (và ticket chưa đóng) mới được trả lời --}}
+@can('reply', $ticket)
     <div class="reply-box">
         @include('partial.form.reply', ['ticket' => $ticket])
     </div>
-@endif
+@endcan
 
-@if ($isOwner)
+{{-- Chỉ customer là chủ ticket (đã giải quyết/đóng) mới được đánh giá --}}
+@can('rate', $ticket)
     <div class="rating-box">
         @include('partial.form.rating', ['ticket' => $ticket, 'rating' => $ticket->rating])
     </div>
-@endif
+@endcan
 @endsection
 
 @section('aside')

@@ -19,7 +19,7 @@ class HeaderComposer
 
         $view->with([
             'unreadCount' => (clone $notifications)->where('is_read', false)->count(),
-            'headerNotifications' => $notifications->latest('created_at')->latest('id')->limit(10)->get(),
+            'headerNotifications' => $notifications->with('ticket')->latest('created_at')->latest('id')->limit(10)->get(),
         ]);
     }
 }

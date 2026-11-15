@@ -24,7 +24,8 @@
                 </summary>
                 <div class="dropdown-menu dropdown-menu-wide">
                     @forelse ($items as $n)
-                        <a href="{{ $n->ticket_id ? route('tickets.show', $n->ticket_id) : '#' }}"
+                        {{-- Ticket đã bị xóa (mềm) thì không link, tránh 404 --}}
+                        <a href="{{ $n->ticket && ! $n->ticket->trashed() ? route('tickets.show', $n->ticket_id) : '#' }}"
                            class="dropdown-item {{ $n->is_read ? 'read' : 'unread' }}">
                             {{ $n->message }}
                             <small>{{ $n->created_at->format('d/m/Y H:i') }}</small>
