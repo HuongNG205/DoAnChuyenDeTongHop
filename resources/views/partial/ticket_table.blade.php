@@ -3,26 +3,29 @@
   Tham số: $tickets (paginator), $mode ('customer' | 'staff')
   Cột "Hoạt động": Sửa (chuyển sang trang Edit) và Xóa.
 --}}
-@php $staff = ($mode ?? 'customer') === 'staff'; @endphp
+@php
+    $staff = ($mode ?? 'customer') === 'staff';
+    // Sắp xếp mặc định của từng danh sách (khớp với controller) để tô sáng nút sort
+    $sortDefault = $staff ? ['updated_at', 'desc'] : ['created_at', 'desc'];
+@endphp
 <div class="table-wrap">
     <table class="data-table">
         <thead>
             <tr>
-                <th>Mã Ticket</th>
-                <th>Tiêu đề</th>
+                @include('partial.sort_th', ['key' => 'track_id', 'label' => 'Mã Ticket'])
+                @include('partial.sort_th', ['key' => 'title', 'label' => 'Tiêu đề'])
                 @if ($staff)
-                    <th>Người tạo</th>
-                    <th>Phụ trách</th>
+                    @include('partial.sort_th', ['key' => 'customer', 'label' => 'Người tạo'])
                 @else
-                    <th>Trạng thái</th>
+                    @include('partial.sort_th', ['key' => 'status', 'label' => 'Trạng thái'])
                 @endif
-                <th>Mức độ ưu tiên</th>
-                <th>Ngày tạo</th>
+                @include('partial.sort_th', ['key' => 'priority', 'label' => 'Mức độ ưu tiên'])
+                @include('partial.sort_th', ['key' => 'created_at', 'label' => 'Ngày tạo'])
                 @if ($staff)
-                    <th>Trạng thái</th>
-                    <th>Ngày cập nhật</th>
+                    @include('partial.sort_th', ['key' => 'status', 'label' => 'Trạng thái'])
+                    @include('partial.sort_th', ['key' => 'updated_at', 'label' => 'Ngày cập nhật'])
                 @endif
-                <th>Rating</th>
+                @include('partial.sort_th', ['key' => 'rating', 'label' => 'Rating'])
                 <th>Hoạt động</th>
             </tr>
         </thead>
@@ -33,7 +36,6 @@
                     <td><a href="{{ route('tickets.show', $t) }}">{{ $t->title }}</a></td>
                     @if ($staff)
                         <td>{{ $t->customer->name }}</td>
-                        <td>{{ $t->owner->name ?? '-' }}</td>
                     @else
                         <td>@include('partial.status_badge', ['status' => $t->status])</td>
                     @endif

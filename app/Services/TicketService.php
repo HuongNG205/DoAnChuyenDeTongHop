@@ -5,15 +5,20 @@ namespace App\Services;
 use App\Mail\TicketCreatedMail;
 use App\Mail\TicketReplyMail;
 use App\Models\Activity;
+use App\Models\Rating;
 use App\Models\Reply;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Contracts\Mail\Mailable;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
+/**
+ * Quy ước thông báo (bảng activities, message != null => hiện ở chuông trên header):
+ * tạo ticket, xóa ticket và phản hồi luôn tạo thông báo gửi tới CUSTOMER (chủ ticket).
+ * Hành động của staff/admin còn được ghi thêm một dòng lịch sử (message = null) cho chính họ.
+ */
 class TicketService
 {
     // ---------- Tạo ticket ----------
@@ -33,15 +38,11 @@ class TicketService
                 'status' => 'new',
             ]);
 
-            // Lịch sử hoạt động của khách hàng (không có message => không hiện ở chuông).
-            $this->record('create_ticket', $ticket, $customer);
-
-            // Thông báo trên chuông cho staff/admin.
-            $this->notify(
-                $this->activeStaff()->get(),
+            $this->notifyCustomer(
+                $customer,
                 'create_ticket',
                 $ticket,
-                "Khách hàng {$customer->name} vừa tạo ticket {$ticket->track_id}: " . Str::limit($ticket->title, 60)
+                "Bạn đã tạo ticket {$ticket->track_id}: " . Str::limit($ticket->title, 60)
             );
 
             return $ticket;
@@ -73,18 +74,12 @@ class TicketService
             // save() cập nhật updated_at; nếu không có gì đổi thì touch() để ticket nổi lên đầu danh sách staff.
             $ticket->isDirty() ? $ticket->save() : $ticket->touch();
 
-            $this->record('reply_ticket', $ticket, $author);
-
             if ($isCustomerReply) {
-                $this->notify(
-                    $this->staffFor($ticket),
-                    'reply_ticket',
-                    $ticket,
-                    "Khách hàng {$author->name} đã phản hồi ticket {$ticket->track_id}."
-                );
+                $this->notifyCustomer($author, 'reply_ticket', $ticket, "Bạn đã phản hồi ticket {$ticket->track_id}.");
             } else {
-                $this->notify(
-                    collect([$ticket->customer])->filter(),   // customer có thể đã bị xóa mềm
+                $this->record('reply_ticket', $ticket, $author); // lịch sử của staff
+                $this->notifyCustomer(
+                    $ticket->customer, // có thể null nếu customer đã bị xóa mềm
                     'reply_ticket',
                     $ticket,
                     "{$author->name} đã phản hồi ticket {$ticket->track_id} của bạn."
@@ -102,26 +97,62 @@ class TicketService
         return $reply;
     }
 
+    // ---------- Xóa ticket ----------
+
+    public function delete(Ticket $ticket, User $actor): void
+    {
+        DB::transaction(function () use ($ticket, $actor) {
+            $customer = $ticket->customer;
+
+            $ticket->delete(); // xóa mềm
+
+            if ($actor->id === $ticket->customer_id) {
+                $this->notifyCustomer($actor, 'delete_ticket', $ticket, "Bạn đã xóa ticket {$ticket->track_id}.");
+
+                return;
+            }
+
+            $this->record('delete_ticket', $ticket, $actor); // lịch sử của staff
+            $this->notifyCustomer(
+                $customer,
+                'delete_ticket',
+                $ticket,
+                "{$actor->name} đã xóa ticket {$ticket->track_id} của bạn."
+            );
+        });
+    }
+
+    // ---------- Đánh giá ----------
+
+    /** Thêm hoặc cập nhật đánh giá (mỗi ticket một đánh giá). */
+    public function rate(Ticket $ticket, User $customer, int $stars): Rating
+    {
+        return DB::transaction(function () use ($ticket, $customer, $stars) {
+            // ratings.ticket_id là UNIQUE nên đánh giá đã bị xóa mềm phải được khôi phục, không tạo dòng mới.
+            $rating = Rating::withTrashed()->firstOrNew(['ticket_id' => $ticket->id]);
+            $rating->fill(['user_id' => $customer->id, 'stars' => $stars]);
+
+            if ($rating->trashed()) {
+                $rating->restore();
+            }
+            $rating->save();
+
+            $this->record('rate_ticket', $ticket, $customer);
+
+            return $rating;
+        });
+    }
+
+    public function removeRating(Ticket $ticket, User $customer): void
+    {
+        DB::transaction(function () use ($ticket, $customer) {
+            if ($ticket->rating?->delete()) {
+                $this->record('rate_ticket', $ticket, $customer);
+            }
+        });
+    }
+
     // ---------- Nội bộ ----------
-
-    /** Staff + admin chưa bị khóa. */
-    private function activeStaff()
-    {
-        return User::whereIn('role', ['staff', 'admin'])->where('is_blocked', false);
-    }
-
-    /**
-     * Staff cần được báo khi khách hàng phản hồi: những người đã tham gia ticket;
-     * nếu chưa ai tham gia (hoặc họ đã bị khóa/xóa) thì báo cho tất cả staff/admin.
-     */
-    private function staffFor(Ticket $ticket): Collection
-    {
-        $participants = $this->activeStaff()
-            ->whereIn('id', Reply::where('ticket_id', $ticket->id)->select('user_id'))
-            ->get();
-
-        return $participants->isNotEmpty() ? $participants : $this->activeStaff()->get();
-    }
 
     /** Ghi một dòng vào bảng activities (message = null: chỉ là lịch sử, không phải thông báo). */
     private function record(string $action, Ticket $ticket, User $user, ?string $message = null): void
@@ -134,11 +165,11 @@ class TicketService
         ]);
     }
 
-    /** Tạo thông báo (hiện ở chuông trên header) cho từng người nhận. */
-    private function notify(Collection $users, string $action, Ticket $ticket, string $message): void
+    /** Tạo thông báo (hiện ở chuông trên header) cho customer. Bỏ qua nếu customer không còn tồn tại. */
+    private function notifyCustomer(?User $customer, string $action, Ticket $ticket, string $message): void
     {
-        foreach ($users as $user) {
-            $this->record($action, $ticket, $user, $message);
+        if ($customer) {
+            $this->record($action, $ticket, $customer, $message);
         }
     }
 

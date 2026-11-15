@@ -267,6 +267,25 @@ a { color: inherit; }
 }
 .pager { margin-top: .5rem; }
 
+/* Nút sắp xếp trong <th> (Font Awesome: fa-caret-up / fa-caret-down) */
+.th-sort { display: inline-flex; align-items: center; gap: .375rem; white-space: nowrap; }
+.sort-btns { display: inline-flex; flex-direction: column; line-height: .75; }
+.data-table a.sort-btn { color: #9CA3AF; font-size: .875rem; text-decoration: none; }
+.data-table a.sort-btn:hover { color: #000; text-decoration: none; }
+.data-table a.sort-btn.is-active { color: var(--primary); }
+
+/* Bộ lọc trang danh sách */
+.filter-box { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem; margin-top: .75rem; }
+.filter-field { display: flex; flex-direction: column; gap: .25rem; font-size: .875rem; }
+.filter-field select,
+.filter-field input {
+    padding: .375rem .5rem;
+    border: 1px solid #000;
+    border-radius: .5rem;
+    background: #fff;
+    font: inherit;
+}
+
 /* Nhãn trạng thái (tên class = giá trị cột tickets.status) */
 .badge { display: inline-block; padding: .25rem .75rem; border-radius: .5rem; font-size: .875rem; white-space: nowrap; }
 .badge-new { background: var(--info); color: #fff; }

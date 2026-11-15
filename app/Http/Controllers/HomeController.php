@@ -23,7 +23,7 @@ class HomeController extends Controller
             );
         }
 
-        $tickets = Ticket::with('rating')->withCount('replies')->latest()->paginate(10);
+        $tickets = Ticket::closed()->with('rating')->withCount('replies')->latest()->paginate(10);
 
         return view('home', compact('tickets'));
     }

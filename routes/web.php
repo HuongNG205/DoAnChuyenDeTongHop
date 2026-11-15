@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ReplyController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Staff\StatsController;
@@ -47,6 +48,11 @@ if (app()->environment('local')) {
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 
+// Xem chi tiết ticket: công khai với ticket đã đóng (TicketPolicy::view). Không đăng nhập vẫn xem được,
+// nhưng sửa / xóa / trả lời / đánh giá vẫn nằm trong nhóm "auth" bên dưới và bị policy chặn.
+// whereNumber để không nuốt /tickets/create.
+Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->whereNumber('ticket')->name('tickets.show');
+
 // ---------- Đăng nhập / đăng ký ----------
 Route::middleware('guest')->group(function () {
     Route::view('/login', 'auth.login')->name('login');
@@ -65,21 +71,23 @@ Route::middleware('auth')->group(function () use ($stub) {
 
     Route::get('/tickets', [TicketController::class, 'index'])->name('tickets.index');
     Route::get('/tickets/create', [TicketController::class, 'create'])->name('tickets.create');
-    Route::get('/tickets/{ticket}', [TicketController::class, 'show'])->name('tickets.show');
     Route::get('/tickets/{ticket}/edit', [TicketController::class, 'edit'])->name('tickets.edit');
     // Mỗi lần tạo ticket / reply có thể gửi email => giới hạn 10 lần/phút/người dùng để chống spam.
     Route::post('/tickets', [TicketController::class, 'store'])->middleware('throttle:10,1')->name('tickets.store');
-    Route::put('/tickets/{ticket}', $stub)->name('tickets.update');
-    Route::delete('/tickets/{ticket}', $stub)->name('tickets.destroy');
+    // Customer không được cập nhật ticket: chặn bằng TicketPolicy::update (chỉ staff/admin).
+    Route::put('/tickets/{ticket}', $stub)->middleware('can:update,ticket')->name('tickets.update');
+    Route::delete('/tickets/{ticket}', [TicketController::class, 'destroy'])->name('tickets.destroy');
     Route::post('/tickets/{ticket}/reply', [ReplyController::class, 'store'])->middleware('throttle:10,1')->name('tickets.reply');
-    Route::post('/tickets/{ticket}/rating', $stub)->name('tickets.rating.store');
-    Route::put('/tickets/{ticket}/rating', $stub)->name('tickets.rating.update');
-    Route::delete('/tickets/{ticket}/rating', $stub)->name('tickets.rating.destroy');
+    // Đánh giá: chỉ customer là chủ ticket (TicketPolicy::rate).
+    Route::post('/tickets/{ticket}/rating', [RatingController::class, 'store'])->name('tickets.rating.store');
+    Route::put('/tickets/{ticket}/rating', [RatingController::class, 'update'])->name('tickets.rating.update');
+    Route::delete('/tickets/{ticket}/rating', [RatingController::class, 'destroy'])->name('tickets.rating.destroy');
 
     // Tài khoản
     Route::get('/account', [AccountController::class, 'edit'])->name('account.edit');
-    Route::put('/account', $stub)->name('account.update');
-    Route::put('/account/password', $stub)->name('account.password');
+    Route::put('/account', [AccountController::class, 'update'])->name('account.update');
+    // Giới hạn 5 lần/phút để chống dò mật khẩu cũ.
+    Route::put('/account/password', [AccountController::class, 'password'])->middleware('throttle:5,1')->name('account.password');
 
     // Staff + admin
     Route::middleware(RoleMiddleware::class . ':staff,admin')->prefix('staff')->group(function () use ($stub) {

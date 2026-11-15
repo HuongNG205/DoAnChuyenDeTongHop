@@ -48,9 +48,7 @@ class TicketController extends Controller
         // Quyền (customer) và dữ liệu (đã lọc HTML) đã được StoreTicketRequest xử lý.
         $ticket = $this->ticketService->create($request->user(), $request->validated());
 
-        return redirect()
-            ->route('tickets.show', $ticket)
-            ->with('status', "Đã gửi ticket {$ticket->track_id}. Email xác nhận sẽ được gửi tới {$request->user()->email}.");
+        return redirect()->route('tickets.show', $ticket);
     }
 
     /**
@@ -80,14 +78,21 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        //
+        Gate::authorize('update', $ticket);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ticket $ticket)
+    public function destroy(Request $request, Ticket $ticket): RedirectResponse
     {
-        //
+        Gate::authorize('delete', $ticket);
+
+        $this->ticketService->delete($ticket, $request->user());
+
+        // Không quay lại trang ticket vừa xóa (sẽ 404) mà về danh sách tương ứng với vai trò.
+        return redirect()
+            ->route($request->user()->isStaff() ? 'staff.tickets.index' : 'tickets.index')
+            ->with('status', "Đã xóa ticket {$ticket->track_id}.");
     }
 }

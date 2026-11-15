@@ -12,7 +12,8 @@ class TicketController extends Controller
     {
         $tickets = Ticket::with(['customer', 'rating'])
             ->search($request->query('q'))
-            ->latest('updated_at')
+            ->filterBy($request->query())
+            ->sortedBy($request->query('sort'), $request->query('dir'), 'updated_at', 'desc')
             ->paginate(10);
 
         return view('staff.tickets', compact('tickets'));

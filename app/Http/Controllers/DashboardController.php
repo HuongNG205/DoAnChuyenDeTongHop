@@ -18,7 +18,7 @@ class DashboardController extends Controller
             'solved' => $count('solved'),
             'inProgress' => $count('in_progress'),
             'closed' => $count('closed'),
-            'recent' => (clone $mine)->with('rating')->withCount('replies')->latest()->limit(5)->get(),
+            'recent' => (clone $mine)->closed()->with('rating')->withCount('replies')->latest()->limit(5)->get(),
         ]);
     }
 }

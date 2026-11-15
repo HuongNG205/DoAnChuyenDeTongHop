@@ -13,13 +13,21 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $term = $request->query('q');
+        $term = trim((string) $request->query('q'));
+
+        // Trạng thái: gõ nhãn tiếng Việt ("Hoạt động", "Đã chặn") -> lọc theo is_blocked.
+        $blockedFlags = collect(config('helpdesk.user_status'))
+            ->filter(fn ($label) => $term !== '' && mb_stripos($label, $term) !== false)
+            ->keys();
 
         $users = User::query()
-            ->when($term, fn ($q) => $q->where(fn ($q) => $q
-                ->where('name', 'like', "%{$term}%")
-                ->orWhere('email', 'like', "%{$term}%")))
-            ->orderBy('id')
+            ->when($term !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->when(ctype_digit($term), fn ($q) => $q->orWhere('id', (int) $term))
+                ->orWhere('name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%")
+                ->orWhereIn('is_blocked', $blockedFlags)))
+            ->filterBy($request->query())
+            ->sortedBy($request->query('sort'), $request->query('dir'))
             ->paginate(10);
 
         return view('admin.users.index', compact('users'));
@@ -52,9 +60,11 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(Request $request, User $user)
     {
-        $tickets = $user->tickets()->with('rating')->latest()->paginate(5);
+        $tickets = $user->tickets()->with('rating')
+            ->sortedBy($request->query('sort'), $request->query('dir'))
+            ->paginate(5);
 
         return view('admin.users.edit', compact('user', 'tickets'));
     }

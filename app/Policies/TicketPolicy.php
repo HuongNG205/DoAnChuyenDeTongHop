@@ -17,11 +17,17 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Xem chi tiết ticket. $user có thể null (khách chưa đăng nhập).
+     * - Ticket đã đóng: công khai, ai cũng xem được (chỉ xem, không tương tác).
+     * - Ticket chưa đóng: chỉ chủ ticket và staff/admin.
      */
-    public function view(User $user, Ticket $ticket): bool
+    public function view(?User $user, Ticket $ticket): bool
     {
-        return $user->isStaff() || $user->id === $ticket->customer_id;
+        if ($ticket->status === 'closed') {
+            return true;
+        }
+
+        return $user !== null && ($user->isStaff() || $user->id === $ticket->customer_id);
     }
 
     /**
@@ -42,11 +48,22 @@ class TicketPolicy
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Cập nhật ticket: chỉ staff/admin (customer không được sửa ticket).
      */
     public function update(User $user, Ticket $ticket): bool
     {
-        return $user->isStaff() || $user->id === $ticket->customer_id;
+        return $user->isStaff();
+    }
+
+    /**
+     * Đánh giá ticket (thêm / sửa / xóa): chỉ khách hàng là chủ ticket,
+     * và ticket đã được giải quyết hoặc đóng (ticket mới / đang giải quyết chưa có rating).
+     */
+    public function rate(User $user, Ticket $ticket): bool
+    {
+        return $user->role === 'customer'
+            && $user->id === $ticket->customer_id
+            && in_array($ticket->status, ['solved', 'closed'], true);
     }
 
     /**
