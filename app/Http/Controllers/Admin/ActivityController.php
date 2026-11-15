@@ -26,7 +26,8 @@ class ActivityController extends Controller
                 ->orWhere('action', 'like', "%{$term}%")
                 ->orWhereIn('action', $actions)
                 ->orWhereHas('notifyUser', fn ($u) => $u->where('name', 'like', "%{$term}%"))))
-            ->latest('created_at')->latest('id')
+            ->filterBy($request->query())
+            ->sortedBy($request->query('sort'), $request->query('dir'))
             ->paginate(10);
 
         return view('admin.activities.index', compact('activities'));

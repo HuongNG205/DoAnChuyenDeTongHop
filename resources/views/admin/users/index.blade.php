@@ -5,18 +5,28 @@
 <h1 class="page-title">Danh sách User</h1>
 <div class="toolbar">
     @include('partial.search_box', ['action' => route('admin.users.index')])
+    @include('partial.filter_box', [
+        'action' => route('admin.users.index'),
+        'fields' => [
+            ['name' => 'role', 'label' => 'Vai trò', 'options' => config('helpdesk.roles')],
+            ['name' => 'status', 'label' => 'Trạng thái', 'options' => config('helpdesk.user_status')],
+            ['name' => 'created_from', 'label' => 'Tạo từ ngày', 'type' => 'date'],
+            ['name' => 'created_to', 'label' => 'Đến ngày', 'type' => 'date'],
+        ],
+    ])
 </div>
 
 <div class="table-wrap">
     <table class="data-table">
         <thead>
             <tr>
-                <th>Mã User</th>
-                <th>Tên</th>
-                <th>Email</th>
-                <th>Vai trò</th>
-                <th>Trạng thái</th>
-                <th>Ngày tạo</th>
+                @php $sortDefault = ['id', 'asc']; @endphp
+                @include('partial.sort_th', ['key' => 'id', 'label' => 'Mã User'])
+                @include('partial.sort_th', ['key' => 'name', 'label' => 'Tên'])
+                @include('partial.sort_th', ['key' => 'email', 'label' => 'Email'])
+                @include('partial.sort_th', ['key' => 'role', 'label' => 'Vai trò'])
+                @include('partial.sort_th', ['key' => 'status', 'label' => 'Trạng thái'])
+                @include('partial.sort_th', ['key' => 'created_at', 'label' => 'Ngày tạo'])
                 <th>Hoạt động</th>
             </tr>
         </thead>

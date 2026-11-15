@@ -26,7 +26,8 @@ class UserController extends Controller
                 ->orWhere('name', 'like', "%{$term}%")
                 ->orWhere('email', 'like', "%{$term}%")
                 ->orWhereIn('is_blocked', $blockedFlags)))
-            ->orderBy('id')
+            ->filterBy($request->query())
+            ->sortedBy($request->query('sort'), $request->query('dir'))
             ->paginate(10);
 
         return view('admin.users.index', compact('users'));
@@ -59,9 +60,11 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user)
+    public function edit(Request $request, User $user)
     {
-        $tickets = $user->tickets()->with('rating')->latest()->paginate(5);
+        $tickets = $user->tickets()->with('rating')
+            ->sortedBy($request->query('sort'), $request->query('dir'))
+            ->paginate(5);
 
         return view('admin.users.edit', compact('user', 'tickets'));
     }

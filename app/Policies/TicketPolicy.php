@@ -48,6 +48,14 @@ class TicketPolicy
     }
 
     /**
+     * Cập nhật ticket: chỉ staff/admin (customer không được sửa ticket).
+     */
+    public function update(User $user, Ticket $ticket): bool
+    {
+        return $user->isStaff();
+    }
+
+    /**
      * Đánh giá ticket (thêm / sửa / xóa): chỉ khách hàng là chủ ticket,
      * và ticket đã được giải quyết hoặc đóng (ticket mới / đang giải quyết chưa có rating).
      */
@@ -56,14 +64,6 @@ class TicketPolicy
         return $user->role === 'customer'
             && $user->id === $ticket->customer_id
             && in_array($ticket->status, ['solved', 'closed'], true);
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Ticket $ticket): bool
-    {
-        return $user->isStaff();
     }
 
     /**
