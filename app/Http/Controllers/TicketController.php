@@ -80,14 +80,21 @@ class TicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        //
+        Gate::authorize('update', $ticket);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Ticket $ticket)
+    public function destroy(Request $request, Ticket $ticket): RedirectResponse
     {
-        //
+        Gate::authorize('delete', $ticket);
+
+        $this->ticketService->delete($ticket, $request->user());
+
+        // Không quay lại trang ticket vừa xóa (sẽ 404) mà về danh sách tương ứng với vai trò.
+        return redirect()
+            ->route($request->user()->isStaff() ? 'staff.tickets.index' : 'tickets.index')
+            ->with('status', "Đã xóa ticket {$ticket->track_id}.");
     }
 }

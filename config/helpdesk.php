@@ -17,6 +17,12 @@ return [
         'closed' => 'Đóng',
     ],
 
+    // Giá trị cột users.is_blocked
+    'user_status' => [
+        0 => 'Hoạt động',
+        1 => 'Đã chặn',
+    ],
+
     // Giá trị cột tickets.priority
     'priority' => [
         'low' => 'Thấp',

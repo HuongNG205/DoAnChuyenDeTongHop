@@ -4,6 +4,6 @@
     <small>{{ $ticket->created_at->format('d/m/Y') }}</small>
     <div class="ticket-meta">
         @include('partial.stars', ['stars' => $ticket->rating->stars ?? 0])
-        <span>{{ $ticket->replies_count ?? 0 }} bình luận</span>
+        {{-- <span>{{ $ticket->replies_count ?? 0 }} bình luận</span> --}}
     </div>
 </a>
