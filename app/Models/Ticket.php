@@ -40,7 +40,7 @@ class Ticket extends Model
 
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->belongsTo(User::class, 'customer_id')->withTrashed();
     }
 
     public function replies(): HasMany
@@ -62,6 +62,12 @@ class Ticket extends Model
     public function scopeClosed(Builder $query): Builder
     {
         return $query->where('status', 'closed');
+    }
+
+    /** Chỉ các Ticket có đánh giá từ $stars sao trở lên (đánh giá đã xóa không tính). */
+    public function scopeRatedAtLeast(Builder $query, int $stars): Builder
+    {
+        return $query->whereHas('rating', fn ($r) => $r->where('stars', '>=', $stars));
     }
 
     /** Thanh tìm kiếm trên header: chỉ tìm theo tiêu đề. */

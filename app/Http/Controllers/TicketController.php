@@ -6,6 +6,7 @@ use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
 use App\Services\TicketService;
 use Illuminate\Http\RedirectResponse;
 
@@ -76,9 +77,13 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Ticket $ticket)
+    public function update(UpdateTicketRequest $request, Ticket $ticket): RedirectResponse
     {
-        Gate::authorize('update', $ticket);
+        $this->ticketService->update($ticket, $request->user(), $request->validated());
+
+        $redirect = $request->boolean('_inline') ? back() : redirect()->route('tickets.show', $ticket);
+
+        return $redirect->with('status', "Đã cập nhật ticket {$ticket->track_id}.");
     }
 
     /**

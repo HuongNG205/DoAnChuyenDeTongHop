@@ -32,7 +32,7 @@ class Activity extends Model
     /** Người nhận thông báo. */
     public function notifyUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'notify_user_id');
+        return $this->belongsTo(User::class, 'notify_user_id')->withTrashed();
     }
 
     /** Bộ lọc lịch sử hoạt động: action, created_from, created_to. */
