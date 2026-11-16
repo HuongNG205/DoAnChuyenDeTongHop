@@ -56,6 +56,15 @@ class TicketPolicy
     }
 
     /**
+     * Sửa tiêu đề / nội dung ticket: nhân viên (staff) bị cấm vì đó là nội dung của khách hàng;
+     * chỉ admin được sửa.
+     */
+    public function updateContent(User $user, Ticket $ticket): bool
+    {
+        return $user->isAdmin();
+    }
+
+    /**
      * Đánh giá ticket (thêm / sửa / xóa): chỉ khách hàng là chủ ticket,
      * và ticket đã được giải quyết hoặc đóng (ticket mới / đang giải quyết chưa có rating).
      */

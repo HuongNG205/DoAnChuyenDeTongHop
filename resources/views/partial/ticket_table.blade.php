@@ -2,6 +2,7 @@
   Bảng ticket dùng chung (theo bảng tickets, ratings, users).
   Tham số: $tickets (paginator), $mode ('customer' | 'staff')
   Cột "Hoạt động": Sửa (chuyển sang trang Edit) và Xóa.
+  Danh sách của staff/admin: đổi nhanh Trạng thái ngay trên bảng (partial.inline_select).
 --}}
 @php
     $staff = ($mode ?? 'customer') === 'staff';
@@ -42,7 +43,20 @@
                     <td>{{ config('helpdesk.priority.' . $t->priority) }}</td>
                     <td>{{ $t->created_at->format('d/m/Y') }}</td>
                     @if ($staff)
-                        <td>@include('partial.status_badge', ['status' => $t->status])</td>
+                        <td>
+                            @can('update', $t)
+                                @include('partial.inline_select', [
+                                    'action' => route('tickets.update', $t),
+                                    'name' => 'status',
+                                    'value' => $t->status,
+                                    'options' => config('helpdesk.status'),
+                                    'label' => 'Trạng thái ' . $t->track_id,
+                                    'badge' => true,
+                                ])
+                            @else
+                                @include('partial.status_badge', ['status' => $t->status])
+                            @endcan
+                        </td>
                         <td>{{ $t->updated_at->format('d/m/Y') }}</td>
                     @endif
                     <td>@include('partial.stars', ['stars' => $t->rating->stars ?? 0])</td>

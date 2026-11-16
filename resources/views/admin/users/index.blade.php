@@ -36,8 +36,30 @@
                     <td>{{ $u->id }}</td>
                     <td><a href="{{ route('admin.users.edit', $u) }}">{{ $u->name }}</a></td>
                     <td>{{ $u->email }}</td>
-                    <td>{{ ucfirst($u->role) }}</td>
-                    <td>{{ config('helpdesk.user_status.' . (int) $u->is_blocked) }}</td>
+                    {{-- Đổi nhanh vai trò / trạng thái ngay trên danh sách; không tự đổi được chính mình --}}
+                    @if ($u->id === auth()->id())
+                        <td>{{ config('helpdesk.roles.' . $u->role) }}</td>
+                        <td>{{ config('helpdesk.user_status.' . (int) $u->is_blocked) }}</td>
+                    @else
+                        <td>
+                            @include('partial.inline_select', [
+                                'action' => route('admin.users.update', $u),
+                                'name' => 'role',
+                                'value' => $u->role,
+                                'options' => config('helpdesk.roles'),
+                                'label' => 'Vai trò của ' . $u->name,
+                            ])
+                        </td>
+                        <td>
+                            @include('partial.inline_select', [
+                                'action' => route('admin.users.update', $u),
+                                'name' => 'is_blocked',
+                                'value' => (int) $u->is_blocked,
+                                'options' => config('helpdesk.user_status'),
+                                'label' => 'Trạng thái của ' . $u->name,
+                            ])
+                        </td>
+                    @endif
                     <td>{{ $u->created_at->format('d/m/Y') }}</td>
                     <td class="nowrap">
                         <a href="{{ route('admin.users.edit', $u) }}" class="act-edit">Sửa</a>

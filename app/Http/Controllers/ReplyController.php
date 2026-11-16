@@ -6,16 +6,16 @@ use App\Http\Requests\StoreReplyRequest;
 use App\Models\Ticket;
 use App\Models\Reply;
 use Illuminate\Http\Request;
-use App\Services\TicketService;
+use App\Services\ReplyService;
 use Illuminate\Http\RedirectResponse;
 
 class ReplyController extends Controller
 {
-    protected TicketService $ticketService;
+    protected ReplyService $replyService;
 
-    public function __construct(TicketService $ticketService)
+    public function __construct(ReplyService $replyService)
     {
-        $this->ticketService = $ticketService;
+        $this->replyService = $replyService;
     }
 
     /**
@@ -40,7 +40,7 @@ class ReplyController extends Controller
      */
     public function store(StoreReplyRequest $request, Ticket $ticket): RedirectResponse
     {
-        $this->ticketService->reply($ticket, $request->user(), $request->validated('message'));
+        $this->replyService->reply($ticket, $request->user(), $request->validated('message'));
 
         return redirect()
             ->route('tickets.show', $ticket)

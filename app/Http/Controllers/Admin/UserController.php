@@ -5,9 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\UpdateUserRequest;
+use App\Services\UserService;
+use Illuminate\Http\RedirectResponse;
 
 class UserController extends Controller
 {
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+    
     /**
      * Display a listing of the resource.
      */
@@ -72,16 +82,28 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        //
+        $this->userService->update($user, $request->validated());
+
+        $redirect = $request->boolean('_inline') ? back() : redirect()->route('admin.users.edit', $user);
+
+        return $redirect->with('status', "Đã cập nhật tài khoản {$user->name}.");
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user): RedirectResponse
     {
-        //
+        if ($user->is($request->user())) {
+            return back()->withErrors(['user' => 'Bạn không thể xóa chính mình.']);
+        }
+
+        $this->userService->delete($user);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', "Đã xóa tài khoản {$user->name}.");
     }
 }

@@ -18,7 +18,13 @@ class DashboardController extends Controller
             'solved' => $count('solved'),
             'inProgress' => $count('in_progress'),
             'closed' => $count('closed'),
-            'recent' => (clone $mine)->closed()->with('rating')->withCount('replies')->latest()->limit(5)->get(),
+            // Chỉ gợi ý những ticket được đánh giá từ 3 sao trở lên.
+            'recent' => Ticket::closed()
+                ->ratedAtLeast(config('helpdesk.recent.min_stars'))
+                ->with('rating')->withCount('replies')
+                ->latest()
+                ->limit(config('helpdesk.recent.limit'))
+                ->get(),
         ]);
     }
 }

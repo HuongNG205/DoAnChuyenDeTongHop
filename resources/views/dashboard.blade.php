@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @section('title', 'Dashboard')
-{{-- Biến: $total, $solved, $inProgress, $waiting, $recent (ticket gần đây) --}}
+{{-- Biến: $total, $solved, $inProgress, $waiting, $closed, $recent (gợi ý: ticket đã đóng có đánh giá từ 3 sao trở lên) --}}
 @section('content')
 <h1 class="page-title center">Dashboard</h1>
 
@@ -23,9 +23,11 @@
 <div class="recent-box">
     <h2>Gần đây</h2>
     <div class="card-list">
-        @foreach ($recent as $ticket)
+        @forelse ($recent as $ticket)
             @include('partial.ticket_card', ['ticket' => $ticket])
-        @endforeach
+        @empty
+            <p class="empty-text">Chưa có ticket nào để gợi ý.</p>
+        @endforelse
     </div>
 </div>
 @endsection

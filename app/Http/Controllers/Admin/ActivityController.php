@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Activity;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ActivityController extends Controller
@@ -76,8 +77,10 @@ class ActivityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Activity $activity)
+    public function destroy(Activity $activity): RedirectResponse
     {
-        //
+        $activity->delete();
+
+        return back()->with('status', 'Đã xóa dòng lịch sử.');
     }
 }

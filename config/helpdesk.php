@@ -30,6 +30,12 @@ return [
         'high' => 'Cao',
     ],
 
+    // Mục "Gần đây" trên dashboard của customer: ticket đã đóng có đánh giá từ N sao trở lên
+    'recent' => [
+        'min_stars' => 3,
+        'limit' => 5,
+    ],
+
     // Giá trị cột activities.action
     'activities' => [
         'register' => 'Đăng ký',
