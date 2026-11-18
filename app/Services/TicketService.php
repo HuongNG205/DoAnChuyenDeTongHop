@@ -125,12 +125,28 @@ class TicketService
 
     // ---------- Đánh giá ----------
 
-    /** Thêm hoặc cập nhật đánh giá (mỗi ticket một đánh giá). */
+    /**
+     * Thêm hoặc cập nhật đánh giá (mỗi ticket một đánh giá).
+     * Ticket đang "in_progress" mà customer đánh giá => tạo đánh giá và chuyển ticket sang "solved".
+     * Ticket đã "solved" / "closed" => giữ nguyên trạng thái (không hạ "closed" về "solved").
+     */
     public function rate(Ticket $ticket, User $customer, int $stars): Rating
     {
         return DB::transaction(function () use ($ticket, $customer, $stars) {
+            // Khóa dòng ticket và đọc lại trạng thái mới nhất: tránh trường hợp staff vừa đổi trạng thái
+            // (ví dụ về "new" / "in_progress" và xóa rating) trong lúc customer đang gửi đánh giá.
+            $locked = Ticket::lockForUpdate()->findOrFail($ticket->id);
+
+            abort_unless(in_array($locked->status, ['in_progress', 'solved', 'closed'], true), 403);
+
+            if ($locked->status === 'in_progress') {
+                $locked->status = 'solved';
+                $locked->save();
+                $ticket->status = 'solved'; // đồng bộ instance của controller
+            }
+
             // ratings.ticket_id là UNIQUE nên đánh giá đã bị xóa mềm phải được khôi phục, không tạo dòng mới.
-            $rating = Rating::withTrashed()->firstOrNew(['ticket_id' => $ticket->id]);
+            $rating = Rating::withTrashed()->firstOrNew(['ticket_id' => $locked->id]);
             $rating->fill(['user_id' => $customer->id, 'stars' => $stars]);
 
             if ($rating->trashed()) {
@@ -138,7 +154,7 @@ class TicketService
             }
             $rating->save();
 
-            $this->activities->record('rate_ticket', $ticket, $customer);
+            $this->activities->record('rate_ticket', $locked, $customer);
 
             return $rating;
         });

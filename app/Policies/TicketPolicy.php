@@ -66,13 +66,14 @@ class TicketPolicy
 
     /**
      * Đánh giá ticket (thêm / sửa / xóa): chỉ khách hàng là chủ ticket,
-     * và ticket đã được giải quyết hoặc đóng (ticket mới / đang giải quyết chưa có rating).
+     * và ticket đang giải quyết, đã giải quyết hoặc đã đóng (ticket mới chưa được đánh giá).
+     * Đánh giá khi ticket đang giải quyết sẽ chuyển ticket sang "đã giải quyết" (xem TicketService::rate).
      */
     public function rate(User $user, Ticket $ticket): bool
     {
         return $user->role === 'customer'
             && $user->id === $ticket->customer_id
-            && in_array($ticket->status, ['solved', 'closed'], true);
+            && in_array($ticket->status, ['in_progress', 'solved', 'closed'], true);
     }
 
     /**
